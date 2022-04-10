@@ -26,7 +26,7 @@ https://github.com/analogdevicesinc/Linduino/blob/master/LTSketchbook/libraries/
 
 from micropython import const
 from adafruit_bus_device.i2c_device import I2CDevice
-from adafruit_register.i2c_bit import ROBit, RWBit
+from adafruit_register.i2c_bit import RWBit
 
 
 _CTRL = const(0x00)
@@ -72,24 +72,20 @@ class LTC2945:
         return self._BUFFER[:count]
 
     def read_vin(self):
-        self.read_bytes(address=_VIN,count=2)
+        self.read_bytes(address=_VIN,count=2) # 12-bit value
         _v = ((self._BUFFER[0]<<8) | self._BUFFER[1]) >> 4 # reduce from 16 bits to 12
         _v *= self.VinRes
         return _v
 
     def read_current(self):
-        self.read_bytes(address=_DSNSE,count=2)
+        self.read_bytes(address=_DSNSE,count=2) # 12-bit value
         _i = ((self._BUFFER[0]<<8) | self._BUFFER[1]) >> 4 # reduce from 16 bits to 12
         _i = _i * self.DSenseRes / self.sense_resistor
         return _i
 
     def read_power(self):
-        self.read_bytes(address=_PWR,count=3)
+        self.read_bytes(address=_PWR,count=3) # 24-bit value
         _p = (self._BUFFER[0]<<8) | self._BUFFER[1]
         _p = (_p<<8) | self._BUFFER[2]
         _p *= self.DSenseRes
         return _p
-
-
-
-
